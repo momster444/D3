@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title> 
+</head>
+<body>
+    <script type="text/javascript" src="./lib/d3v5.min.js"></script>
+    <script>
+        // data
+        var dataset = [30, 25, 44, 21, 30, 50];
+
+        // 화면 사이즈 지정
+        var gr_w = 600;
+        var gr_h = 400;
+        var margin = {top:40, right:20, bottom:30, left:20};
+        var bar_h = gr_h / dataset.length;
+        
+        // 스케일 자동 계산
+        var x_scale = d3.scaleLinear()   // d3.scale.linear()
+                      .domain([0, d3.max(dataset)])   // 데이터 폭
+                      .range([0, gr_w]);         // 실제 그려질 사이즈
+
+        // // Axis(도표 축) 지정
+        // var x_axis = d3.svg.axis()
+        //                 .scale(x_scale)
+        //                 .orient("top");
+        var x_axis = d3.axisTop(x_scale);
+
+        // 그릴 영역 작성
+        var svg = d3.select("body")
+                    .append("svg")
+                    .attr("width", gr_w + margin.left + margin.right)
+                    .attr("height", gr_h + margin.top + margin.bottom);
+
+        // 그래프를 그림
+        var bar = svg.selectAll(".bar")
+                    .data(dataset)
+                    .enter();
+
+        // 막대 그래프 
+        bar.append("rect")
+            .attr("x", margin.left)
+            .attr("y", function(d, i) { return margin.top + i * bar_h; })
+            .attr("width", function(d) { return x_scale(d); })
+            .attr("height", bar_h - 4)
+            .attr("fill", function(d, i) { return (i%2)? 'red' : 'blue'; });
+        
+        // 레이블 텍스트
+        bar.append("text")
+            .text(function(d) { return d; })
+            .style("font-size", "20px")
+            .style("text-anchor", "middle")
+            .attr("x", function(d, i) { return x_scale(d) - 10; })
+            .attr("y", function(d, i) { return margin.top + i * bar_h + bar_h / 2 + 5; })
+            .attr("fill", "white");
+
+        // Axis 추가
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(${margin.left},${margin.top})`)
+            .style("font-size", "14px")
+            .call(x_axis);
+    </script>   
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title> 
+</head>
+<body>
+    <script type="text/javascript" src="./lib/d3v5.min.js"></script>
+    <script>
+        // data
+        var dataset = [30, 25, 44, 21, 30, 50];
+
+        var svg_width = 600, svg_height = 400;
+        var svg = d3.select("body")
+        .append("svg")
+        .attr("width", svg_width)
+        .attr("height", svg_height);
+        
+        var bar_h = svg_height / dataset.length;
+        //var bar_w = svg_width / 50;
+        
+        // 스케일 자동 계산
+        var x_scale = d3.scaleLinear()   // d3.scale.linear()
+                      .domain([0, d3.max(dataset)])   // 데이터 폭
+                      .range([0, svg_width]);         // 실제 그려질 사이즈
+        
+        svg.selectAll("rect")
+            .data(dataset)      // 그릴 데이터 지정
+            .enter()            // 그리기 시작
+            .append("rect")     // 무엇을 그릴지 지정
+            .attr("x", 0)
+            .attr("y", function(d, i) { return i * bar_h; })
+            .attr("width", function(d) { return x_scale(d); })
+            .attr("height", bar_h - 5)
+            .attr("fill", "blue")
+    </script>   
+</body>
+</html>
