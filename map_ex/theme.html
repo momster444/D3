@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>theme</title>
+    <style>
+        path{
+            fill:#ed8b70;
+            stroke:#de6a6c;
+        }
+        svg circle {
+            fill: orange;
+            opacity: .5;
+            stroke: white;
+        }
+        svg circle:hover {
+            fill: red;
+            stroke: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="./lib/d3v5.min.js"></script>
+    <script src="./lib/topojson.v1.min.js"></script>
+    <script>
+
+        var width = window.innerWidth,
+            height = window.innerHeight;
+
+        var projection = d3.geoMercator()
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geoPath().projection(projection);
+
+        var svg = d3.select('#map').append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        var map = svg.append("g").attr("id", "map"),
+            places = svg.append("g").attr("id", "places");
+
+        d3.json("./data/skorea_municipalities_topo_simple.json").then(function(data) {
+            console.log(data);
+            var geojson = topojson.feature(data, data.objects.skorea_municipalities_geo);
+            var features = geojson.features;
+
+            var bounds = d3.geoBounds(geojson),
+                center = d3.geoCentroid(geojson);
+
+            var distance = d3.geoDistance(bounds[0], bounds[1]),
+                scale = height / distance / Math.sqrt(2);
+
+            projection.scale(scale).center(center);
+            console.log("center: ", center);
+            console.log("scale", scale);
+
+            map.selectAll("path")
+                .data(features)
+                .enter().append("path")
+                .attr("class", function(d) { console.log(); return "municipality c " + d.properties.code })
+                .attr("d", path);
+
+            var mapInfo = [
+                {
+                    "name":"서울",
+                    "lat" : "37.532600",
+                    "lon" : "127.024612"
+                },
+                {
+                    "name":"대전",
+                    "lat" : "36.3730178",
+                    "lon" : "127.2483736"
+                }
+            ]
+
+            var icons = svg.append('g')
+                .selectAll('svg')
+                .data(mapInfo)
+                .enter()  
+
+                .append("svg:image")
+                .attr("width", 50)
+                .attr("height", 50)
+                .attr('x' ,  d=>projection([d.lon, d.lat])[0])
+                .attr('y' ,  d=>projection([d.lon, d.lat])[1])
+
+                .attr('opacity', 0)
+                .attr("xlink:href", './grapefruit.svg') 
+                .on('click', function(d){
+                    console.log(d)
+                })
+
+                .transition()
+                .ease(d3.easeElastic)
+                .duration(2000)
+                .delay((d, i)=> (i+1) * 500)
+                .attr('opacity', 1)
+                .attr('y' ,  d=> projection([d.lon, d.lat])[1])
+        });
+    </script>
+</body>
+</html>
